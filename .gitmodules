@@ -1,0 +1,12 @@
+[submodule "Libraries/IRRemote"]
+	path = Libraries/IRRemote
+	url = https://github.com/shirriff/Arduino-IRremote.git
+[submodule "Libraries/StandardCplusplus"]
+	path = Libraries/StandardCplusplus
+	url = https://github.com/hauschil/StandardCplusplus.git
+[submodule "Libraries/MD5"]
+	path = Libraries/MD5
+	url = https://github.com/tzikis/ArduinoMD5.git
+[submodule "Libraries/hmc6343"]
+	path = Libraries/hmc6343
+	url = https://github.com/n-ovesen/hmc6343
