@@ -1,39 +1,29 @@
+
 #ifndef __PETPL086_H__
 #define __PETPL086_H__ 1
-struct TplSample{
-    uint32_t ts;
-    uint32_t id;
-    uint16_t vamb, vref, vpix[8];
-};
 
-
-//we could map the input signal via voltage divider to the range of 0 to 1.1 Volts
-inline
-uint16_t ReadAnalogInVoltage(uint8_t pin){ return map( analogRead(pin), 0, 1024, 0, 5000); };
 
 class PeTpl086
 {
-    
-    volatile static uint8_t SampleCnt; //this is only the definition
-    volatile static uint16_t* SampleBufferPtr;
-    volatile static uint8_t SamplePin;
-    static void onInterrupt(){ //data can be passed by intterupt_params = void* for each interrupt
-                               //first sample actually samples something different
-        if (SampleCnt >0)
-            SampleBufferPtr[SampleCnt-1] = ReadAnalogInVoltage(SamplePin);
-        SampleCnt++;
+public:
+    struct Sample{ //one sample returned by read
+        uint32_t ts;
+        uint32_t id;
+        uint16_t vamb, vref, vpix[8];
     };
+    
 private:
     uint32_t id ;
     uint8_t analogInputPin, sampleChiPin, resetPin, powerPin, gndPin;
 public:
     
     inline void Init( int analogInputPin = 0, //the analogInput Pin
-                      int sampleChiPin = 2, //should be connected to an interrupt pin!!
-                      int resetPin = 11,    //reset pin in order to control the thermopile
-                      int powerPin = 15,
-                      int gndPin   = 12){
+                     int sampleChiPin = 2, //
+                     int resetPin = 11,    //reset pin in order to control the thermopile
+                     int powerPin = 15, //these should be obvious
+                     int gndPin   = 12){
         id = 0;
+        
         pinMode(powerPin,OUTPUT);
         pinMode(gndPin,OUTPUT);
         digitalWrite(gndPin,LOW);    //put to low
@@ -45,39 +35,68 @@ public:
         digitalWrite(resetPin, LOW);
     }
     
-    inline void Read(struct TplSample *sample){
+    /* Routine that should be called if an interrupt occured
+     uint8_t _sampleCnt; //should be called on interrupt
+     inline void OnSamplePinStateChanged(){
+     if (_sampleCnt >0)
+     sample->vpix[_sampleCnt-1] = ReadAnalogInVoltage(SamplePin);
+     _sampleCnt++;
+     }
+     **/
+    
+    //we could map the input signal via voltage divider to the range of 0 to 1.1 Volts
+    inline
+    uint16_t ReadAnalogInVoltage(uint8_t pin){
+        return map( (analogRead(pin)+analogRead(pin))>>1 , 0, 1024, 0, 5000); //sampling takes 100us and we have >200 so sample twice and average
+    };
+    
+    
+    inline
+    void WaitForRisingEdge(uint8_t pin){
+        uint8_t pinState;
+        pinState = HIGH; //assume high, since want it to low and need to read at least onexs
+        while(pinState != LOW) pinState = digitalRead(pin); //wait for it to be or stay low
+        while(pinState != HIGH) pinState = digitalRead(pin);
+    }
+    
+    inline
+    int Read(struct Sample *sample){ //Read sample using polling ... we could call it poll
         analogReference(DEFAULT); //set reference to default
-        sample->ts = millis();
-        sample->id = id++;
+        uint64_t curSampleTimeInMillis = millis();
+        sample->ts = curSampleTimeInMillis; //the sampling time... it may overflow
+        sample->id = id++; //sample number
         
         digitalWrite(resetPin, LOW); //pull low such that the thermopile outputs data
-        attachInterrupt( sampleChiPin - 2, onInterrupt, RISING); //attach the interrupt routine
-        delayMicroseconds(2); //delay 2 ms
+        delayMicroseconds(20); //delay 2 µs
         sample->vref = ReadAnalogInVoltage( analogInputPin); //read analog voltage
-        digitalWrite(resetPin, HIGH);
-        sample->vamb = ReadAnalogInVoltage( analogInputPin);
+        digitalWrite(resetPin, HIGH); // now pull up and read vamb
         
-        SampleBufferPtr = sample->vpix;
-        SampleCnt = 0;
-        SamplePin = analogInputPin; //set
-        attachInterrupt( sampleChiPin - 2, onInterrupt, RISING); //attach the interrupt routine
-        while (SampleCnt <=8) (void)0; //wait until n samples a read
-        digitalWrite(resetPin, LOW);
-        detachInterrupt( sampleChiPin - 2); //attach the interrupt routine
+        delayMicroseconds(20); //delay 2 ms //wait for stable output
+        sample->vamb = ReadAnalogInVoltage( analogInputPin);
+        WaitForRisingEdge(sampleChiPin);
+        delayMicroseconds(20);
+        //read dummy pixellastSampleTimeInMillis
+        for (int i=0;i<8;i++){
+            WaitForRisingEdge(sampleChiPin); //
+            delayMicroseconds(20); //delay <20 µs
+            sample->vpix[i] = ReadAnalogInVoltage(analogInputPin); //signal should stay activ for atleast 270-400 my and analogRead takes 100 us... so we can sample twice?!?!
+        }
+        digitalWrite(resetPin, LOW); //pull reset low to stop sampling
+        return (0); //EXIT_SUCCESS
+        
+        /** old interrupt code
+         
+         SampleBufferPtr = sample->vpix;
+         SampleCnt = 0;
+         SamplePin = analogInputPin; //set
+         attachInterrupt( sampleChiPin - 2, onInterrupt, RISING); //attach the interrupt routine
+         while (SampleCnt <=8) (void)0; //wait until n samples a read
+         digitalWrite(resetPin, LOW);
+         **/
         
     }
     
 };
-
-/** Init the corresponding static values **/
-
-volatile uint8_t
-PeTpl086::SampleCnt=0;
-volatile uint16_t*
-PeTpl086::SampleBufferPtr;
-volatile uint8_t
-PeTpl086::SamplePin=0;
-
 
 
 #endif

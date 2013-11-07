@@ -10,3 +10,6 @@
 [submodule "Libraries/hmc6343"]
 	path = Libraries/hmc6343
 	url = https://github.com/n-ovesen/hmc6343
+[submodule "Libraries/LowPower"]
+	path = Libraries/LowPower
+	url = https://github.com/rocketscream/Low-Power
