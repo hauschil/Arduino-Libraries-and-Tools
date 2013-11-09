@@ -6,33 +6,28 @@
 class PeTpl086
 {
 public:
+    //Message<uint64_t, uint64_t, uint16_t, uint16_t, uint16_t, Buffer<uint16_t,8> >
     struct Sample{ //one sample returned by read
-        uint32_t ts;
-        uint32_t id;
+        uint64_t ts;
+        uint64_t id;
         uint16_t vamb, vref, vpix[8];
     };
     
 private:
     uint32_t id ;
-    uint8_t analogInputPin, sampleChiPin, resetPin, powerPin, gndPin;
+    uint8_t analogInputPin, sampleChiPin, resetPin;
 public:
     
     inline void Init( int analogInputPin = 0, //the analogInput Pin
                      int sampleChiPin = 2, //
-                     int resetPin = 11,    //reset pin in order to control the thermopile
-                     int powerPin = 15, //these should be obvious
-                     int gndPin   = 12){
+                     int resetPin = 11    //reset pin in order to control the thermopile
+    ){
         id = 0;
-        
-        pinMode(powerPin,OUTPUT);
-        pinMode(gndPin,OUTPUT);
-        digitalWrite(gndPin,LOW);    //put to low
-        digitalWrite(powerPin,HIGH); //enable powerpin
         /** Configure TPL **/
         pinMode(resetPin, OUTPUT);
-        pinMode(sampleChiPin, INPUT);
-        /** Set TPL in RESET **/
         digitalWrite(resetPin, LOW);
+        
+        pinMode(sampleChiPin, INPUT);
     }
     
     /* Routine that should be called if an interrupt occured

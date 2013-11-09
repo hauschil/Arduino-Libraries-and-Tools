@@ -13,3 +13,6 @@
 [submodule "Libraries/LowPower"]
 	path = Libraries/LowPower
 	url = https://github.com/rocketscream/Low-Power
+[submodule "Tools/arduino-cmake"]
+	path = Tools/arduino-cmake
+	url = https://github.com/queezythegreat/arduino-cmake.git
