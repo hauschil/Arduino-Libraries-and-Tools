@@ -16,3 +16,6 @@
 [submodule "Tools/arduino-cmake"]
 	path = Tools/arduino-cmake
 	url = https://github.com/queezythegreat/arduino-cmake.git
+[submodule "Libraries/Adafruit_TLC5947"]
+	path = Libraries/Adafruit_TLC5947
+	url = https://github.com/adafruit/Adafruit_TLC5947.git
