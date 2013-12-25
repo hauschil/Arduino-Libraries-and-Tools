@@ -19,3 +19,6 @@
 [submodule "Libraries/Adafruit_TLC5947"]
 	path = Libraries/Adafruit_TLC5947
 	url = https://github.com/adafruit/Adafruit_TLC5947.git
+[submodule "Libraries/Maxbotix"]
+	path = Libraries/Maxbotix
+	url = https://github.com/Diaoul/arduino-Maxbotix.git
