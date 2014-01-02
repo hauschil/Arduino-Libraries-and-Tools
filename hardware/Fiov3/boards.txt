@@ -1,0 +1,41 @@
+###############################################################
+
+fiov3.name=Fio v3 (Leonardo)
+fiov3.upload.protocol=avr109
+fiov3.upload.maximum_size=28672
+fiov3.upload.speed=57600
+fiov3.upload.disable_flushing=true
+fiov3.bootloader.low_fuses=0xff
+fiov3.bootloader.high_fuses=0xd8
+fiov3.bootloader.extended_fuses=0xcb
+fiov3.bootloader.path=caterina
+fiov3.bootloader.file=Caterina-fiov3.hex
+fiov3.bootloader.unlock_bits=0x3F
+fiov3.bootloader.lock_bits=0x2F
+fiov3.build.mcu=atmega32u4
+fiov3.build.f_cpu=8000000L
+fiov3.build.vid=0x1B4F
+fiov3.build.pid=0xF101
+fiov3.build.core=arduino
+fiov3.build.variant=fiov3
+
+##############################################################
+
+##############################################################
+# This is the old version of the Fio v3. Based on the Diskloader bootloader
+# Remove the '#'s below, if you need to enable this board in Arduino.
+fiov3L.name=Fio v3 (Diskloader)
+fiov3L.upload.protocol=arduino
+fiov3L.upload.maximum_size=28672
+fiov3L.upload.speed=1200
+fiov3L.bootloader.low_fuses=0xde
+fiov3L.bootloader.high_fuses=0xd8
+fiov3L.bootloader.extended_fuses=0xcb
+fiov3L.bootloader.path=diskloader-Fio
+fiov3L.bootloader.file=DiskLoader-Fiov3.hex
+fiov3L.bootloader.unlock_bits=0x3F
+fiov3L.bootloader.lock_bits=0x2F
+fiov3L.build.mcu=atmega32u4
+fiov3L.build.f_cpu=8000000L
+fiov3L.build.core=arduino-old
+fiov3L.build.variant=fiov3
